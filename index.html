@@ -1,0 +1,238 @@
+Cirno ᗜˬᗜ, [12.01.2025 0:34]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drift Cloud Shop</title>
+    <style>
+        /* Стили остаются прежними */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+            color: #fff;
+        }
+
+        header {
+            background-color: #1e1e1e;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #00bcd4;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .product {
+            background-color: #333;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+            flex: 1 1 30%;
+            text-align: center;
+        }
+
+        .product h3 {
+            color: #00bcd4;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #00bcd4;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button[disabled] {
+            background-color: #666;
+        }
+
+        .cart-container {
+            background-color: #333;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 5px;
+        }
+
+        #cart-items {
+            margin-bottom: 20px;
+        }
+
+        select {
+            background-color: #222;
+            color: white;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+Cirno ᗜˬᗜ, [12.01.2025 0:34]
+<body>
+    <header>
+        <h1>Drift Cloud Shop</h1>
+    </header>
+
+    <div class="container" id="products"></div>
+    
+    <!-- Корзина и форма оформления заказа -->
+    <div class="cart-container">
+        <h2>Корзина</h2>
+        <div id="cart-items"></div>
+        <div>
+            <label for="delivery-region">Выберите регион доставки:</label>
+            <select id="delivery-region">
+                <option value="Riga">Рига</option>
+                <option value="Other">Другая область</option>
+            </select>
+        </div>
+
+        <div id="city-select" style="display: none;">
+            <label for="city">Город:</label>
+            <select id="city">
+                <option value="Jurmala">Юрмала</option>
+                <option value="Liepaja">Лиепая</option>
+                <!-- Добавьте другие города -->
+            </select>
+        </div>
+
+        <div id="district-select" style="display: none;">
+            <label for="district">Район:</label>
+            <select id="district">
+                <option value="Center">Центр</option>
+                <option value="Latgale">Латгалия</option>
+                <!-- Добавьте районы для других городов -->
+            </select>
+        </div>
+
+        <button id="place-order">Оформить заказ</button>
+    </div>
+
+    <script>
+        const cart = [];
+
+        // Функция для добавления товара в корзину
+        function addToCart(product) {
+            cart.push({
+                name: product.name,
+                flavor: product.flavor,
+                price: product.price,
+                quantity: 1, // Пока добавляется 1 штука, можно изменить
+                in_stock: product.in_stock
+            });
+
+            updateCart();
+        }
+
+        // Функция для обновления корзины
+        function updateCart() {
+            const cartItemsDiv = document.getElementById('cart-items');
+            cartItemsDiv.innerHTML = '';
+            cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.innerHTML = `
+                    <p>Товар: ${item.name}</p>
+                    <p>Вкус: ${item.flavor}</p>
+                    <p>Цена: ${item.price} ₽</p>
+                    <p>Количество: <input type="number" value="${item.quantity}" min="1" class="item-quantity" data-name="${item.name}"></p>
+                `;
+                cartItemsDiv.appendChild(itemDiv);
+            });
+        }
+
+        // Функция для отправки заказа
+        document.getElementById('place-order').addEventListener('click', function() {
+            const region = document.getElementById('delivery-region').value;
+            const city = region === 'Riga' ? 'Riga' : document.getElementById('city').value;
+            const district = region === 'Riga' ? document.getElementById('district').value : document.getElementById('district').value;
+            
+            // Получаем данные из корзины
+            const orderDetails = cart.map(item => {
+                return ${item.name} (${item.flavor}) - ${item.quantity} шт.;
+            }).join('\n');
+
+            // Формируем сообщение для отправки на почту
+            const message = `Новый заказ:
+            
+Регион доставки: ${region}
+Город: ${city}
+Район: ${district}
+Товары:
+${orderDetails}`;
+
+            // Отправка сообщения на почту (здесь будет использоваться API для отправки email)
+            sendEmail(message);
+        });
+
+        // Функция для отправки email
+        function sendEmail(message) {
+            fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Заказ успешно оформлен!');
+            })
+            .catch(error => {
+                alert('Ошибка при оформлении заказа');
+            });
+        }
+
+        // Загружаем товары
+        async function loadProducts() {
+
+Cirno ᗜˬᗜ, [12.01.2025 0:34]
+const response = await fetch('/api/products');
+            const products = await response.json();
+            const container = document.getElementById('products');
+            container.innerHTML = '';
+
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('product');
+                productDiv.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>Вкус: ${product.flavor}</p>
+                    <p>Цена: ${product.price} ₽</p>
+                    <p>${product.in_stock ? 'В наличии' : 'Нет в наличии'}</p>
+                    <button ${product.in_stock ? '' : 'disabled'} onclick="addToCart(${JSON.stringify(product)})">
+                        ${product.in_stock ? 'Купить' : 'Нет в наличии'}
+                    </button>
+                `;
+                container.appendChild(productDiv);
+            });
+        }
+
+        // Обработчик изменения выбора региона доставки
+        document.getElementById('delivery-region').addEventListener('change', function() {
+            const region = this.value;
+            if (region === 'Other') {
+                document.getElementById('city-select').style.display = 'block';
+                document.getElementById('district-select').style.display = 'block';
+            } else {
+                document.getElementById('city-select').style.display = 'none';
+                document.getElementById('district-select').style.display = 'none';
+            }
+        });
+
+        // Загружаем товары при загрузке страницы
+        loadProducts();
+    </script>
+</body>
+</html>
